@@ -21,9 +21,7 @@ const List: FC = () => {
       <h1>Entries</h1>
       {entries.map((entry) => (
         <div key={entry.id}>
-          <Link href={`/admin/edit/${entry.id}`}>
-            <a>{entry.title}</a>
-          </Link>
+          <Link href={`/admin/edit/${entry.id}`}>{entry.title}</Link>
           <br />
         </div>
       ))}

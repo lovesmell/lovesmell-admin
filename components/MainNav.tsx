@@ -8,13 +8,12 @@ import Box from "@mui/material/Box";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
 import CssBaseline from "@mui/material/CssBaseline";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import IconButton from "@mui/material/IconButton";
+import List from "@mui/material/List";
 import MenuItem from "@mui/material/MenuItem";
-import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
@@ -22,8 +21,11 @@ import ListItemText from "@mui/material/ListItemText";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
+import AddBoxIcon from "@mui/icons-material/AddBox";
+import LogoutIcon from "@mui/icons-material/Logout";
+
 import Container from "@mui/material/Container";
 
 const drawerWidth = 240;
@@ -112,7 +114,7 @@ export default function MainNav({ mainPage }: IProps) {
   const theme = useTheme();
   const router = useRouter();
 
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState<boolean>(false);
 
   const handleDrawerOpen = () => {
     setOpen(true);
@@ -131,19 +133,25 @@ export default function MainNav({ mainPage }: IProps) {
       id: 1,
       label: "Home",
       path: "/",
-      icon: <InboxIcon />,
+      icon: <DashboardIcon />,
     },
     {
       id: 2,
-      label: "Login",
-      path: "/login",
-      icon: <MailIcon />,
+      label: "Posts",
+      path: "/admin/edit",
+      icon: <FormatListBulletedIcon />,
     },
     {
       id: 3,
-      label: "Register",
+      label: "Add Post",
+      path: "/admin/post",
+      icon: <AddBoxIcon />,
+    },
+    {
+      id: 4,
+      label: "Sign Out",
       path: "/register",
-      icon: <MailIcon />,
+      icon: <LogoutIcon />,
     },
   ];
 
@@ -187,7 +195,12 @@ export default function MainNav({ mainPage }: IProps) {
         <List>
           {routes.map(({ id, label, path, icon }) => (
             <Link href={path} style={{ textDecoration: "none" }} key={id}>
-              <ListItem disablePadding sx={{ display: "block" }}>
+              <MenuItem
+                selected={path === router.pathname}
+                sx={{
+                  p: 0,
+                }}
+              >
                 <ListItemButton
                   sx={{
                     minHeight: 48,
@@ -209,7 +222,7 @@ export default function MainNav({ mainPage }: IProps) {
                     sx={{ opacity: open ? 1 : 0 }}
                   />
                 </ListItemButton>
-              </ListItem>
+              </MenuItem>
             </Link>
           ))}
         </List>

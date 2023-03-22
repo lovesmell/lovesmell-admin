@@ -1,38 +1,55 @@
-import Link from "next/link";
+import { useRouter } from "next/router";
 
 import db from "@lovesmell/utils/db";
 
-const Posts = (props: any) => {
-  const { entriesData } = props;
-
-  return (
-    <div>
-      <h1>Posts</h1>
-      {entriesData.map((entry: any) => (
-        <div key={entry.id}>
-          <Link href={`/posts/${entry.slug}`}>
-            <a>{entry.title}</a>
-          </Link>
-          <br />
+const Post = (props: any) => {
+  const { entry } = props;
+  const router = useRouter();
+  if (router.isFallback) {
+    return <div>loading</div>;
+  } else {
+    if (entry) {
+      return (
+        <div>
+          <h1>{entry.title}</h1>
+          <h4>{entry.created}</h4>
+          <p>{entry.body}</p>
         </div>
-      ))}
-    </div>
-  );
+      );
+    } else {
+      return <div>not found</div>;
+    }
+  }
 };
 
-export const getStaticProps = async () => {
-  const entries = await db
-    .collection("entries")
-    .orderBy("created", "desc")
-    .get();
-  const entriesData = entries.docs.map((entry) => ({
-    id: entry.id,
-    ...entry.data(),
+export const getStaticPaths = async () => {
+  const entries = await db.collection("entries").get();
+  const paths = entries.docs.map((entry) => ({
+    params: {
+      slug: entry.data().slug,
+    },
   }));
   return {
-    props: { entriesData },
-    revalidate: 10,
+    paths,
+    fallback: true,
   };
 };
 
-export default Posts;
+export const getStaticProps = async (context: any) => {
+  const { slug } = context.params;
+  const res = await db.collection("entries").where("slug", "==", slug).get();
+  const entry = res.docs.map((entry) => entry.data());
+  if (entry.length) {
+    return {
+      props: {
+        entry: entry[0],
+      },
+    };
+  } else {
+    return {
+      props: {},
+    };
+  }
+};
+
+export default Post;
