@@ -1,13 +1,58 @@
 import { FC, useState } from "react";
+import dynamic from "next/dynamic";
 
 import dashify from "dashify";
 
 import axios from "axios";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { Box, Button, Grid, TextField } from "@mui/material";
+
+import Button from "@mui/material/Button";
+import Grid from "@mui/material/Grid";
+import TextField from "@mui/material/TextField";
+
+const QuillNoSSRWrapper = dynamic(import("react-quill"), {
+  ssr: false,
+  loading: () => <p>Loading ...</p>,
+});
+
+const modules = {
+  toolbar: [
+    [{ header: "1" }, { header: "2" }, { font: [] }],
+    [{ size: [] }],
+    ["bold", "italic", "underline", "strike", "blockquote"],
+    [
+      { list: "ordered" },
+      { list: "bullet" },
+      { indent: "-1" },
+      { indent: "+1" },
+    ],
+    ["link", "image", "video"],
+    ["clean"],
+  ],
+  clipboard: {
+    matchVisual: false,
+  },
+};
+
+const formats = [
+  "header",
+  "font",
+  "size",
+  "bold",
+  "italic",
+  "underline",
+  "strike",
+  "blockquote",
+  "list",
+  "bullet",
+  "indent",
+  "link",
+  "image",
+  "video",
+];
 
 interface IPost {
   title: string;
@@ -26,7 +71,7 @@ const Post: FC = () => {
   });
 
   const {
-    register,
+    control,
     handleSubmit,
     formState: { errors },
   } = useForm<IPost>({
@@ -42,26 +87,54 @@ const Post: FC = () => {
   };
 
   return (
-    <Grid container>
-      <Box
-        sx={{
-          width: 500,
-          maxWidth: "100%",
-        }}
-      >
-        <TextField fullWidth label="Title" id="title" {...register("title")} />
-
-        <TextField
-          fullWidth
-          label="Content"
-          id="content"
-          {...register("body")}
+    <Grid container spacing={3} flexDirection="column" alignItems="center">
+      <Grid item xs={12} sm={6}>
+        <Controller
+          name="title"
+          control={control}
+          render={({ field }) => {
+            return (
+              <TextField
+                {...field}
+                fullWidth
+                id="title"
+                label="Title"
+                error={Boolean(errors.title)}
+                helperText={errors.title && "Title is required"}
+              />
+            );
+          }}
         />
+      </Grid>
 
-        <Button variant="outlined" onClick={handleSubmit(onSubmit)}>
-          Submit
+      <Grid item xs={12} sm={6}>
+        <Controller
+          name="body"
+          control={control}
+          render={({ field }) => {
+            return (
+              <QuillNoSSRWrapper
+                {...field}
+                modules={modules}
+                formats={formats}
+                theme="snow"
+              />
+            );
+          }}
+        />
+      </Grid>
+
+      <Grid item>
+        <Button
+          id="submit"
+          color="primary"
+          type="submit"
+          variant="contained"
+          onClick={handleSubmit(onSubmit)}
+        >
+          Add Post
         </Button>
-      </Box>
+      </Grid>
     </Grid>
   );
 };
