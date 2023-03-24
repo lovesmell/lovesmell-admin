@@ -1,5 +1,4 @@
-import { FC, useState } from "react";
-import dynamic from "next/dynamic";
+import { FC } from "react";
 
 import dashify from "dashify";
 
@@ -10,49 +9,9 @@ import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import Button from "@mui/material/Button";
-import Grid from "@mui/material/Grid";
+import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
-
-const QuillNoSSRWrapper = dynamic(import("react-quill"), {
-  ssr: false,
-  loading: () => <p>Loading ...</p>,
-});
-
-const modules = {
-  toolbar: [
-    [{ header: "1" }, { header: "2" }, { font: [] }],
-    [{ size: [] }],
-    ["bold", "italic", "underline", "strike", "blockquote"],
-    [
-      { list: "ordered" },
-      { list: "bullet" },
-      { indent: "-1" },
-      { indent: "+1" },
-    ],
-    ["link", "image", "video"],
-    ["clean"],
-  ],
-  clipboard: {
-    matchVisual: false,
-  },
-};
-
-const formats = [
-  "header",
-  "font",
-  "size",
-  "bold",
-  "italic",
-  "underline",
-  "strike",
-  "blockquote",
-  "list",
-  "bullet",
-  "indent",
-  "link",
-  "image",
-  "video",
-];
+import Editor from "@lovesmell/components/Editor";
 
 interface IPost {
   title: string;
@@ -87,8 +46,8 @@ const Post: FC = () => {
   };
 
   return (
-    <Grid container spacing={3} flexDirection="column" alignItems="center">
-      <Grid item xs={12} sm={6}>
+    <Box>
+      <Box>
         <Controller
           name="title"
           control={control}
@@ -105,26 +64,19 @@ const Post: FC = () => {
             );
           }}
         />
-      </Grid>
+      </Box>
 
-      <Grid item xs={12} sm={6}>
+      <Box mt={2}>
         <Controller
           name="body"
           control={control}
           render={({ field }) => {
-            return (
-              <QuillNoSSRWrapper
-                {...field}
-                modules={modules}
-                formats={formats}
-                theme="snow"
-              />
-            );
+            return <Editor field={field} />;
           }}
         />
-      </Grid>
+      </Box>
 
-      <Grid item>
+      <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
         <Button
           id="submit"
           color="primary"
@@ -134,8 +86,8 @@ const Post: FC = () => {
         >
           Add Post
         </Button>
-      </Grid>
-    </Grid>
+      </Box>
+    </Box>
   );
 };
 
