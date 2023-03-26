@@ -150,7 +150,7 @@ export default function MainNav({ mainPage }: IProps) {
     {
       id: 4,
       label: "Sign Out",
-      path: "/register",
+      path: "/account/login",
       icon: <LogoutIcon />,
     },
   ];

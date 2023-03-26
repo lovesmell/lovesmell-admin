@@ -11,6 +11,8 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import TextField from "@mui/material/TextField";
+import Paper from "@mui/material/Paper";
+
 import Editor from "@lovesmell/components/Editor";
 
 interface IPost {
@@ -40,13 +42,12 @@ const Post: FC = () => {
   });
 
   const onSubmit = async (data: IPost) => {
-    console.log(data);
     const { title, body } = data;
     await axios.post("/api/entry", { title, slug: dashify(title), body });
   };
 
   return (
-    <Box>
+    <Paper elevation={10} sx={{ padding: 5, margin: "auto" }}>
       <Box>
         <Controller
           name="title"
@@ -87,7 +88,7 @@ const Post: FC = () => {
           Add Post
         </Button>
       </Box>
-    </Box>
+    </Paper>
   );
 };
 
