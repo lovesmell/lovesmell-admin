@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
@@ -22,7 +22,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import FormatListBulletedIcon from "@mui/icons-material/FormatListBulleted";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import LogoutIcon from "@mui/icons-material/Logout";
 
@@ -107,10 +106,10 @@ interface IRoute {
 }
 
 interface IProps {
-  mainPage: JSX.Element;
+  children: JSX.Element;
 }
 
-export default function MainNav({ mainPage }: IProps) {
+export default function MainNav({ children }: IProps) {
   const theme = useTheme();
   const router = useRouter();
 
@@ -124,33 +123,23 @@ export default function MainNav({ mainPage }: IProps) {
     setOpen(false);
   };
 
-  const activeRoute = (routeName: string, currentRoute: string) => {
-    return routeName === currentRoute;
-  };
-
   const routes: IRoute[] = [
     {
       id: 1,
-      label: "Home",
+      label: "Dashboard",
       path: "/",
       icon: <DashboardIcon />,
     },
     {
       id: 2,
-      label: "Posts",
-      path: "/admin/edit",
-      icon: <FormatListBulletedIcon />,
-    },
-    {
-      id: 3,
       label: "Add Post",
-      path: "/admin/post",
+      path: "/post",
       icon: <AddBoxIcon />,
     },
     {
-      id: 4,
+      id: 3,
       label: "Sign Out",
-      path: "/account/login",
+      path: "/login",
       icon: <LogoutIcon />,
     },
   ];
@@ -196,7 +185,7 @@ export default function MainNav({ mainPage }: IProps) {
           {routes.map(({ id, label, path, icon }) => (
             <Link href={path} style={{ textDecoration: "none" }} key={id}>
               <MenuItem
-                selected={path === router.pathname}
+                selected={path === "router.pathname"}
                 sx={{
                   p: 0,
                 }}
@@ -230,7 +219,7 @@ export default function MainNav({ mainPage }: IProps) {
 
       <Box component="main" sx={{ flexGrow: 1, p: 3, height: "100vh" }}>
         <DrawerHeader />
-        <Container>{mainPage}</Container>
+        <Container>{children}</Container>
       </Box>
     </Box>
   );

@@ -1,4 +1,6 @@
-import { FC, useState } from "react";
+"use client";
+
+import { FC, useEffect, useState } from "react";
 import NextLink from "next/link";
 
 import Checkbox from "@mui/material/Checkbox";
@@ -17,12 +19,9 @@ import AuthRoute from "@lovesmell/HOC/authRoute";
 
 import db from "@lovesmell/utils/db";
 
-interface IProps {
-  entriesData: any;
-}
-
-const Home: FC<IProps> = ({ entriesData }) => {
+const DashBoard: FC = () => {
   const [checked, setChecked] = useState([0]);
+  const [posts, setPosts] = useState<any>([]);
 
   const handleToggle = (value: number) => () => {
     const currentIndex = checked.indexOf(value);
@@ -37,11 +36,33 @@ const Home: FC<IProps> = ({ entriesData }) => {
     setChecked(newChecked);
   };
 
+  // useEffect(() => {
+  //   const getPosts = async () => {
+  //     try {
+  //       const entries = await db
+  //         .collection("entries")
+  //         .orderBy("created", "desc")
+  //         .get();
+
+  //       const posts = entries.docs.map((entry) => ({
+  //         id: entry.id,
+  //         ...entry.data(),
+  //       }));
+
+  //       setPosts(posts);
+  //     } catch (e) {
+  //       console.log(e);
+  //     }
+  //   };
+
+  //   getPosts();
+  // }, []);
+
   return (
     <AuthRoute>
       <Paper elevation={10} sx={{ padding: 1, margin: "auto" }}>
-        {/* <List>
-          {entriesData?.map((entry: any) => {
+        <List>
+          {posts?.map((entry: any) => {
             const { id, title } = entry;
             const labelId = `checkbox-list-label-${id}`;
 
@@ -72,34 +93,17 @@ const Home: FC<IProps> = ({ entriesData }) => {
                       onChange={handleToggle(id)}
                     />
                   </ListItemIcon>
-                  <Link href={`/admin/edit/${id}`} component={NextLink}>
+                  <Link href={`/post/${id}`} component={NextLink}>
                     <Typography>{title}</Typography>
                   </Link>
                 </ListItemButton>
               </ListItem>
             );
           })}
-        </List> */}
+        </List>
       </Paper>
     </AuthRoute>
   );
 };
 
-// export const getStaticProps = async () => {
-//   const entries = await db
-//     .collection("entries")
-//     .orderBy("created", "desc")
-//     .get();
-
-//   const entriesData = entries.docs.map((entry) => ({
-//     id: entry.id,
-//     ...entry.data(),
-//   }));
-
-//   return {
-//     props: { entriesData },
-//     revalidate: 10,
-//   };
-// };
-
-export default Home;
+export default DashBoard;

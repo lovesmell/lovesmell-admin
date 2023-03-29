@@ -24,7 +24,7 @@ interface IProps {
   children: JSX.Element;
 }
 
-export const AuthProvider = ({ children }: IProps) => {
+export const AuthContextProvider = ({ children }: IProps) => {
   const { user } = useAuthentication();
 
   const [currentUser, setCurrentUser] = useState<User | null>(null);

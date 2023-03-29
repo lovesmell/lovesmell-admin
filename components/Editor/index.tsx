@@ -1,7 +1,7 @@
-import dynamic from "next/dynamic";
 import { FC, useCallback, useMemo, useRef } from "react";
 
-const ReactQuill = dynamic(() => import("react-quill"), { ssr: false });
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 interface IProps {
   field?: any;

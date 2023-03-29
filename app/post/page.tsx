@@ -1,3 +1,5 @@
+"use client";
+
 import { FC } from "react";
 
 import dashify from "dashify";
@@ -14,6 +16,7 @@ import TextField from "@mui/material/TextField";
 import Paper from "@mui/material/Paper";
 
 import Editor from "@lovesmell/components/Editor";
+import AuthRoute from "@lovesmell/HOC/authRoute";
 
 interface IPost {
   title: string;
@@ -47,6 +50,7 @@ const Post: FC = () => {
   };
 
   return (
+    // <AuthRoute>
     <Paper elevation={10} sx={{ padding: 5, margin: "auto" }}>
       <Box>
         <Controller
@@ -89,6 +93,7 @@ const Post: FC = () => {
         </Button>
       </Box>
     </Paper>
+    // </AuthRoute>
   );
 };
 

@@ -1,5 +1,5 @@
-import React, { FC, useContext } from "react";
-import { useRouter } from "next/router";
+import React, { FC, useContext, useEffect } from "react";
+import { useRouter } from "next/navigation";
 
 import { AuthContext } from "@lovesmell/context/AuthContext";
 
@@ -8,15 +8,17 @@ interface IProps {
 }
 
 const AuthRoute: FC<IProps> = ({ children }) => {
-  const { currentUser } = useContext(AuthContext);
   const router = useRouter();
 
-  if (currentUser) {
-    return <>{children}</>;
-  } else {
-    router.push("/account/login");
-    return <></>;
-  }
+  const { currentUser } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/login");
+    }
+  }, [currentUser, router]);
+
+  return <>{children}</>;
 };
 
 export default AuthRoute;
