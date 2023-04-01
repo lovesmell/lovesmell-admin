@@ -1,17 +1,21 @@
-import { getFirestore, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs } from "firebase/firestore";
 
-import { app } from "@lovesmell/config/firebase";
+import { db } from "@lovesmell/config/firebase";
 
-const db = getFirestore(app);
+export default async function getPosts(collectionName: string) {
+  const docRef = collection(db, collectionName);
 
-export default async function getPosts(collection: string) {
-  let docRef = doc(db, collection);
-
-  let result = null;
+  let result: any[] = [];
   let error = null;
 
   try {
-    result = await getDoc(docRef);
+    const response = await getDocs(docRef);
+    response.forEach((post) => {
+      result.push({
+        id: post.id,
+        ...post.data(),
+      });
+    });
   } catch (e) {
     error = e;
   }

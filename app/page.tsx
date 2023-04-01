@@ -16,8 +16,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 
 import AuthRoute from "@lovesmell/HOC/authRoute";
-
-import db from "@lovesmell/utils/db";
+import getPosts from "@lovesmell/utils/db/getPosts";
 
 const DashBoard: FC = () => {
   const [checked, setChecked] = useState([0]);
@@ -36,27 +35,21 @@ const DashBoard: FC = () => {
     setChecked(newChecked);
   };
 
-  // useEffect(() => {
-  //   const getPosts = async () => {
-  //     try {
-  //       const entries = await db
-  //         .collection("entries")
-  //         .orderBy("created", "desc")
-  //         .get();
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { error, result } = await getPosts("posts");
 
-  //       const posts = entries.docs.map((entry) => ({
-  //         id: entry.id,
-  //         ...entry.data(),
-  //       }));
+        console.log(error);
+        console.log(result);
+        // setPosts(posts);
+      } catch (e) {
+        console.log(e);
+      }
+    };
 
-  //       setPosts(posts);
-  //     } catch (e) {
-  //       console.log(e);
-  //     }
-  //   };
-
-  //   getPosts();
-  // }, []);
+    fetchData();
+  }, []);
 
   return (
     <AuthRoute>

@@ -50,50 +50,50 @@ const Post: FC = () => {
   };
 
   return (
-    // <AuthRoute>
-    <Paper elevation={10} sx={{ padding: 5, margin: "auto" }}>
-      <Box>
-        <Controller
-          name="title"
-          control={control}
-          render={({ field }) => {
-            return (
-              <TextField
-                {...field}
-                fullWidth
-                id="title"
-                label="Title"
-                error={Boolean(errors.title)}
-                helperText={errors.title && "Title is required"}
-              />
-            );
-          }}
-        />
-      </Box>
+    <AuthRoute>
+      <Paper elevation={10} sx={{ padding: 5, margin: "auto" }}>
+        <Box>
+          <Controller
+            name="title"
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextField
+                  {...field}
+                  fullWidth
+                  id="title"
+                  label="Title"
+                  error={Boolean(errors.title)}
+                  helperText={errors.title && "Title is required"}
+                />
+              );
+            }}
+          />
+        </Box>
 
-      <Box mt={2}>
-        <Controller
-          name="body"
-          control={control}
-          render={({ field }) => {
-            return <Editor field={field} />;
-          }}
-        />
-      </Box>
+        <Box mt={2}>
+          <Controller
+            name="body"
+            control={control}
+            render={({ field }) => {
+              return <Editor field={field} />;
+            }}
+          />
+        </Box>
 
-      <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
-        <Button
-          id="submit"
-          color="primary"
-          type="submit"
-          variant="contained"
-          onClick={handleSubmit(onSubmit)}
-        >
-          Add Post
-        </Button>
-      </Box>
-    </Paper>
-    // </AuthRoute>
+        <Box mt={2} sx={{ display: "flex", justifyContent: "flex-end" }}>
+          <Button
+            id="submit"
+            color="primary"
+            type="submit"
+            variant="contained"
+            onClick={handleSubmit(onSubmit)}
+          >
+            Add Post
+          </Button>
+        </Box>
+      </Paper>
+    </AuthRoute>
   );
 };
 

@@ -1,6 +1,13 @@
-import React, { useState } from "react";
+import React, {
+  MouseEventHandler,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
 
 import { useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 
 import { styled, useTheme, Theme, CSSObject } from "@mui/material/styles";
@@ -23,9 +30,11 @@ import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddBoxIcon from "@mui/icons-material/AddBox";
-import LogoutIcon from "@mui/icons-material/Logout";
+import LoginIcon from "@mui/icons-material/Login";
 
 import Container from "@mui/material/Container";
+
+import { AuthContext } from "@lovesmell/context/AuthContext";
 
 const drawerWidth = 240;
 
@@ -112,6 +121,9 @@ interface IProps {
 export default function MainNav({ children }: IProps) {
   const theme = useTheme();
   const router = useRouter();
+  const pathname = usePathname();
+
+  const { currentUser } = useContext(AuthContext);
 
   const [open, setOpen] = useState<boolean>(false);
 
@@ -123,26 +135,39 @@ export default function MainNav({ children }: IProps) {
     setOpen(false);
   };
 
-  const routes: IRoute[] = [
-    {
-      id: 1,
-      label: "Dashboard",
-      path: "/",
-      icon: <DashboardIcon />,
+  const handleSignOut = useCallback(
+    (e: MouseEventHandler<HTMLAnchorElement>) => {
+      console.log("test");
     },
-    {
-      id: 2,
-      label: "Add Post",
-      path: "/post",
-      icon: <AddBoxIcon />,
-    },
-    {
-      id: 3,
-      label: "Sign Out",
-      path: "/login",
-      icon: <LogoutIcon />,
-    },
-  ];
+    []
+  );
+
+  const routes: IRoute[] = useMemo(() => {
+    const _routes = [
+      {
+        id: 1,
+        label: "Dashboard",
+        path: "/",
+        icon: <DashboardIcon />,
+      },
+      {
+        id: 2,
+        label: "Add/Edit Post",
+        path: "/post",
+        icon: <AddBoxIcon />,
+      },
+    ];
+
+    if (!currentUser) {
+      _routes.push({
+        id: 3,
+        label: "Sign In",
+        path: "/login",
+        icon: <LoginIcon />,
+      });
+    }
+    return _routes;
+  }, [currentUser]);
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -163,7 +188,7 @@ export default function MainNav({ children }: IProps) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" noWrap component="div">
-            Mini variant drawer
+            Lovesmell
           </Typography>
         </Toolbar>
       </AppBar>
@@ -185,7 +210,7 @@ export default function MainNav({ children }: IProps) {
           {routes.map(({ id, label, path, icon }) => (
             <Link href={path} style={{ textDecoration: "none" }} key={id}>
               <MenuItem
-                selected={path === "router.pathname"}
+                selected={path === pathname}
                 sx={{
                   p: 0,
                 }}
