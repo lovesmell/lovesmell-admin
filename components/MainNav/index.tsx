@@ -31,10 +31,13 @@ import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import AddBoxIcon from "@mui/icons-material/AddBox";
 import LoginIcon from "@mui/icons-material/Login";
+import LogoutIcon from "@mui/icons-material/Logout";
 
 import Container from "@mui/material/Container";
 
 import { AuthContext } from "@lovesmell/context/AuthContext";
+
+import signOut from "@lovesmell/utils/auth/signOut";
 
 const drawerWidth = 240;
 
@@ -135,12 +138,9 @@ export default function MainNav({ children }: IProps) {
     setOpen(false);
   };
 
-  const handleSignOut = useCallback(
-    (e: MouseEventHandler<HTMLAnchorElement>) => {
-      console.log("test");
-    },
-    []
-  );
+  const handleSignOut = useCallback(() => {
+    signOut();
+  }, []);
 
   const routes: IRoute[] = useMemo(() => {
     const _routes = [
@@ -187,9 +187,24 @@ export default function MainNav({ children }: IProps) {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div">
-            Lovesmell
-          </Typography>
+          <Box
+            sx={{
+              flex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Typography variant="h6" noWrap component="div">
+              Lovesmell
+            </Typography>
+
+            {currentUser ? (
+              <IconButton color="inherit" onClick={handleSignOut}>
+                <LogoutIcon />
+              </IconButton>
+            ) : null}
+          </Box>
         </Toolbar>
       </AppBar>
 

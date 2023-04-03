@@ -1,6 +1,7 @@
 "use client";
 
 import { FC } from "react";
+import { useRouter } from "next/navigation";
 
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -10,6 +11,8 @@ import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
+
+import signIn from "@lovesmell/utils/auth/signIn";
 
 interface ISignIn {
   email: string;
@@ -22,6 +25,8 @@ const defaultValues: ISignIn = {
 };
 
 const Login: FC = () => {
+  const router = useRouter();
+
   const schema = yup.object().shape({
     email: yup
       .string()
@@ -40,8 +45,19 @@ const Login: FC = () => {
     defaultValues: defaultValues,
   });
 
-  const handleSignin = (data: ISignIn) => {
-    console.log(data);
+  const handleSignin = async (data: ISignIn) => {
+    try {
+      const { email, password } = data;
+      const { result, error } = await signIn(email, password);
+
+      if (error) {
+        console.log(error);
+      }
+
+      router.push("/");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

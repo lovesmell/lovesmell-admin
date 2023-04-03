@@ -18,6 +18,10 @@ const AuthRoute: FC<IProps> = ({ children }) => {
     }
   }, [currentUser, router]);
 
+  if (!currentUser) {
+    return null;
+  }
+
   return <>{children}</>;
 };
 

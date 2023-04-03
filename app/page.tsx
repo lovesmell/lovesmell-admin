@@ -39,10 +39,7 @@ const DashBoard: FC = () => {
     const fetchData = async () => {
       try {
         const { error, result } = await getPosts("posts");
-
-        console.log(error);
-        console.log(result);
-        // setPosts(posts);
+        setPosts(result);
       } catch (e) {
         console.log(e);
       }

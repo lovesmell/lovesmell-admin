@@ -1,7 +1,15 @@
 import { FC, useCallback, useMemo, useRef } from "react";
 
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
+import { ImageResize } from "quill-image-resize-module-ts";
+
+import { ref, getDownloadURL, uploadBytesResumable } from "firebase/storage";
+
+import { storage } from "@lovesmell/config/firebase";
+
 import "react-quill/dist/quill.snow.css";
+
+Quill.register("modules/imageResize", ImageResize);
 
 interface IProps {
   field?: any;
@@ -18,82 +26,88 @@ const Editor: FC<IProps> = ({ field }) => {
 
     input.onchange = async () => {
       const file = input.files ? input.files[0] : null;
-      let data = null;
-      const formData = new FormData();
 
       const quillObj = editorRef?.current?.getEditor();
       const range = quillObj?.getSelection();
 
-      if (file) {
-        formData.append("file", file);
-        formData.append("resource_type", "raw");
-
-        const responseUpload = await fetch(
-          `${process.env.NEXT_PUBLIC_IMAGE_UPLOAD}/upload`,
-          { method: "POST", body: formData }
-        );
-
-        data = await responseUpload.json();
-        if (data.error) {
-          console.error(data.error);
-        }
-
-        quillObj.editor.insertEmbed(range.index, "image", data?.secure_url);
+      if (!file) {
+        return;
       }
+
+      const storageRef = ref(storage, `files/${file.name}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+          console.log(progress);
+        },
+        (error) => {
+          alert(error);
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            quillObj.editor.insertEmbed(range.index, "image", downloadURL);
+          });
+        }
+      );
     };
   }, []);
 
-  const modules = useMemo(
-    () => ({
-      toolbar: {
-        container: [
-          [
-            { header: "1" },
-            { header: "2" },
-            { header: [3, 4, 5, 6] },
-            { font: [] },
-          ],
-          [{ size: [] }],
-          ["bold", "italic", "underline", "strike", "blockquote"],
-          [
-            { list: "ordered" },
-            { list: "bullet" },
-            { indent: "-1" },
-            { indent: "+1" },
-          ],
-          ["link", "image", "video"],
-          ["clean"],
+  const modules = {
+    imageResize: {
+      parchment: Quill.import("parchment"),
+      modules: ["Resize", "DisplaySize"],
+    },
+    toolbar: {
+      container: [
+        [
+          { header: "1" },
+          { header: "2" },
+          { header: [3, 4, 5, 6] },
+          { font: [] },
         ],
-        handlers: {
-          image: imageHandler,
-        },
+        [{ size: [] }],
+        ["bold", "italic", "underline", "strike", "blockquote"],
+        [
+          { list: "ordered" },
+          { list: "bullet" },
+          { indent: "-1" },
+          { indent: "+1" },
+        ],
+        [{ align: [] }],
+        ["link", "image", "video"],
+        ["clean"],
+      ],
+      handlers: {
+        image: imageHandler,
       },
-      clipboard: {
-        matchVisual: false,
-      },
-    }),
-    [imageHandler]
-  );
+    },
+    clipboard: {
+      matchVisual: false,
+    },
+  };
 
-  const formats = useMemo(
-    () => [
-      "header",
-      "font",
-      "size",
-      "bold",
-      "italic",
-      "underline",
-      "strike",
-      "blockquote",
-      "list",
-      "bullet",
-      "indent",
-      "link",
-      "image",
-      "video",
-    ],
-    []
-  );
+  const formats = [
+    "header",
+    "font",
+    "size",
+    "bold",
+    "italic",
+    "underline",
+    "strike",
+    "blockquote",
+    "list",
+    "bullet",
+    "indent",
+    "link",
+    "image",
+    "video",
+    "align",
+  ];
 
   return (
     <ReactQuill
