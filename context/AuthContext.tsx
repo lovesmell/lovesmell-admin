@@ -50,7 +50,7 @@ export const AuthContextProvider = ({ children }: IProps) => {
   }, [user]);
 
   if (loading) {
-    return <>Loading...</>;
+    return null;
   }
 
   return (
