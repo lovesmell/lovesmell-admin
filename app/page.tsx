@@ -3,47 +3,46 @@
 import { FC, useEffect, useState } from "react";
 import NextLink from "next/link";
 
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import {
   DataGrid,
+  GridActionsCellItem,
   GridColDef,
+  GridRowId,
   GridRowsProp,
   GridToolbar,
 } from "@mui/x-data-grid";
 
 import Typography from "@mui/material/Typography";
 import Paper from "@mui/material/Paper";
-
-import AuthRoute from "@lovesmell/HOC/authRoute";
-import getPosts from "@lovesmell/utils/db/getPosts";
 import Box from "@mui/material/Box";
 import Stack from "@mui/material/Stack";
 
-const columns: GridColDef[] = [
-  { field: "firstName", headerName: "First name", width: 130 },
-  { field: "lastName", headerName: "Last name", width: 130 },
-  {
-    field: "age",
-    headerName: "Age",
-    type: "number",
-    width: 90,
-  },
-];
-
-const rows: GridRowsProp = [
-  { id: 1, lastName: "Snow", firstName: "Jon", age: 35 },
-  { id: 2, lastName: "Lannister", firstName: "Cersei", age: 42 },
-  { id: 3, lastName: "Lannister", firstName: "Jaime", age: 45 },
-  { id: 4, lastName: "Stark", firstName: "Arya", age: 16 },
-  { id: 5, lastName: "Targaryen", firstName: "Daenerys", age: null },
-  { id: 6, lastName: "Melisandre", firstName: null, age: 150 },
-  { id: 7, lastName: "Clifford", firstName: "Ferrara", age: 44 },
-  { id: 8, lastName: "Frances", firstName: "Rossini", age: 36 },
-  { id: 9, lastName: "Roxie", firstName: "Harvey", age: 65 },
-];
+import AuthRoute from "@lovesmell/HOC/authRoute";
+import getPosts from "@lovesmell/utils/db/getPosts";
+import deletePost from "@lovesmell/utils/db/deletePost";
 
 const DashBoard: FC = () => {
   const [checked, setChecked] = useState([0]);
-  const [posts, setPosts] = useState<any>([]);
+  const [posts, setPosts] = useState<GridRowsProp>([]);
+
+  const handleEditClick = (id: GridRowId) => () => {};
+
+  const handleDeleteClick = (id: GridRowId) => async () => {
+    try {
+      const { error } = await deletePost("posts", id as string);
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      fetchData();
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const handleToggle = (value: number) => () => {
     const currentIndex = checked.indexOf(value);
@@ -58,16 +57,46 @@ const DashBoard: FC = () => {
     setChecked(newChecked);
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const { error, result } = await getPosts("posts");
-        setPosts(result);
-      } catch (e) {
-        console.log(e);
-      }
-    };
+  const columns: GridColDef[] = [
+    { field: "title", headerName: "Title", flex: 1 },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        return [
+          <GridActionsCellItem
+            key="edit"
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            key="delete"
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={handleDeleteClick(id)}
+            color="inherit"
+          />,
+        ];
+      },
+    },
+  ];
 
+  const fetchData = async () => {
+    try {
+      const { error, result } = await getPosts("posts");
+      setPosts(result);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -76,14 +105,14 @@ const DashBoard: FC = () => {
       <Paper elevation={10} sx={{ padding: 3, margin: "auto" }}>
         <Typography variant="h4">Dashboard</Typography>
 
-        <Box sx={{ height: 600 }}>
+        <Box sx={{ height: 250, maxHeight: 600 }}>
           <DataGrid
             checkboxSelection
             disableColumnFilter
             disableColumnSelector
             disableDensitySelector
             pageSizeOptions={[10, 25, 50]}
-            rows={rows}
+            rows={posts}
             columns={columns}
             slots={{
               toolbar: GridToolbar,

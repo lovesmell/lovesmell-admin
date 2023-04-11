@@ -18,6 +18,8 @@ import Paper from "@mui/material/Paper";
 import Editor from "@lovesmell/components/Editor";
 import AuthRoute from "@lovesmell/HOC/authRoute";
 
+import addPost from "@lovesmell/utils/db/addPost";
+
 interface IPost {
   title: string;
   body: string;
@@ -37,7 +39,8 @@ const Post: FC = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors },
+    reset,
+    formState: { errors, isValid },
   } = useForm<IPost>({
     mode: "onChange",
     resolver: yupResolver(PostSchema),
@@ -46,7 +49,18 @@ const Post: FC = () => {
 
   const onSubmit = async (data: IPost) => {
     const { title, body } = data;
-    await axios.post("/api/entry", { title, slug: dashify(title), body });
+    try {
+      const { error } = await addPost("posts", { title, body });
+
+      if (error) {
+        console.log(error);
+        return;
+      }
+
+      reset({ title: "", body: "" });
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (
@@ -87,6 +101,7 @@ const Post: FC = () => {
             color="primary"
             type="submit"
             variant="contained"
+            disabled={!isValid}
             onClick={handleSubmit(onSubmit)}
           >
             Add Post
