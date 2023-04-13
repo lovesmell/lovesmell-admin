@@ -1,10 +1,8 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useEffect, useState } from "react";
 
-import dashify from "dashify";
-
-import axios from "axios";
+import { useSearchParams } from "next/navigation";
 
 import { Controller, useForm } from "react-hook-form";
 import * as yup from "yup";
@@ -17,8 +15,13 @@ import Paper from "@mui/material/Paper";
 
 import Editor from "@lovesmell/components/Editor";
 import AuthRoute from "@lovesmell/HOC/authRoute";
+import CustomizedSnackbars, {
+  ICustomizedSnackbars,
+} from "@lovesmell/components/CustomizedSnackbar";
 
+import getPost from "@lovesmell/utils/db/getPost";
 import addPost from "@lovesmell/utils/db/addPost";
+import updatePost from "@lovesmell/utils/db/updatePost";
 
 interface IPost {
   title: string;
@@ -31,6 +34,14 @@ const defaultValues: IPost = {
 };
 
 const Post: FC = () => {
+  const searchParams = useSearchParams();
+  const id = searchParams?.get("id");
+
+  const [isUpdate, setIsUpdate] = useState<boolean>(false);
+  const [snackbar, setSnackbar] = useState<ICustomizedSnackbars>({
+    open: false,
+  });
+
   const PostSchema = yup.object().shape({
     title: yup.string().required("Please fill this out"),
     body: yup.string().required("Please fill this out"),
@@ -48,20 +59,46 @@ const Post: FC = () => {
   });
 
   const onSubmit = async (data: IPost) => {
-    const { title, body } = data;
     try {
-      const { error } = await addPost("posts", { title, body });
+      let response;
+      if (isUpdate) {
+        response = await updatePost("posts", id!, data);
+      } else {
+        response = await addPost("posts", data);
+      }
 
+      const { error } = response;
       if (error) {
         console.log(error);
         return;
       }
 
+      setSnackbar({ open: true, message: "done", severity: "success" });
       reset({ title: "", body: "" });
     } catch (e) {
       console.log(e);
     }
   };
+
+  useEffect(() => {
+    const getEditPost = async () => {
+      try {
+        const { result } = await getPost("posts", id!);
+
+        if (result) {
+          const { title = "", body = "" } = result;
+          reset({ title, body });
+          setIsUpdate(true);
+        }
+      } catch (e) {
+        console.log(e);
+      }
+    };
+
+    if (id) {
+      getEditPost();
+    }
+  }, [id, reset]);
 
   return (
     <AuthRoute>
@@ -104,9 +141,14 @@ const Post: FC = () => {
             disabled={!isValid}
             onClick={handleSubmit(onSubmit)}
           >
-            Add Post
+            {isUpdate ? "Update Post" : "Add Post"}
           </Button>
         </Box>
+
+        <CustomizedSnackbars
+          {...snackbar}
+          handleClose={() => setSnackbar({ open: false })}
+        />
       </Paper>
     </AuthRoute>
   );

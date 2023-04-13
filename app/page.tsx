@@ -2,6 +2,7 @@
 
 import { FC, useEffect, useState } from "react";
 import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
@@ -9,14 +10,21 @@ import {
   DataGrid,
   GridActionsCellItem,
   GridColDef,
+  GridRenderCellParams,
   GridRowId,
   GridRowsProp,
   GridToolbar,
 } from "@mui/x-data-grid";
 
-import Typography from "@mui/material/Typography";
-import Paper from "@mui/material/Paper";
 import Box from "@mui/material/Box";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogTitle from "@mui/material/DialogTitle";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogActions from "@mui/material/DialogActions";
+import Paper from "@mui/material/Paper";
+import Typography from "@mui/material/Typography";
 import Stack from "@mui/material/Stack";
 
 import AuthRoute from "@lovesmell/HOC/authRoute";
@@ -24,14 +32,31 @@ import getPosts from "@lovesmell/utils/db/getPosts";
 import deletePost from "@lovesmell/utils/db/deletePost";
 
 const DashBoard: FC = () => {
+  const router = useRouter();
+
   const [checked, setChecked] = useState([0]);
   const [posts, setPosts] = useState<GridRowsProp>([]);
+  const [open, setOpen] = useState(false);
+  const [deleteId, setDeleteId] = useState<GridRowId>("");
 
-  const handleEditClick = (id: GridRowId) => () => {};
+  const handleEditClick = (id: GridRowId) => () => {
+    router.push(`/post?id=${id}`);
+  };
 
-  const handleDeleteClick = (id: GridRowId) => async () => {
+  const handleDeleteClick = (id: GridRowId) => () => {
+    setOpen(true);
+    setDeleteId(id);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const handleDelete = async () => {
+    handleClose();
+
     try {
-      const { error } = await deletePost("posts", id as string);
+      const { error } = await deletePost("posts", deleteId as string);
 
       if (error) {
         console.log(error);
@@ -58,7 +83,14 @@ const DashBoard: FC = () => {
   };
 
   const columns: GridColDef[] = [
-    { field: "title", headerName: "Title", flex: 1 },
+    {
+      field: "title",
+      headerName: "Title",
+      flex: 1,
+      renderCell: ({ row: { title, id } }: GridRenderCellParams) => (
+        <NextLink href={`/post?id=${id}`}>{title}</NextLink>
+      ),
+    },
     {
       field: "actions",
       type: "actions",
@@ -102,46 +134,82 @@ const DashBoard: FC = () => {
 
   return (
     <AuthRoute>
-      <Paper elevation={10} sx={{ padding: 3, margin: "auto" }}>
-        <Typography variant="h4">Dashboard</Typography>
+      <>
+        <Paper elevation={10} sx={{ padding: 3, margin: "auto" }}>
+          <Typography variant="h4">Dashboard</Typography>
 
-        <Box sx={{ height: 250, maxHeight: 600 }}>
-          <DataGrid
-            checkboxSelection
-            disableColumnFilter
-            disableColumnSelector
-            disableDensitySelector
-            pageSizeOptions={[10, 25, 50]}
-            rows={posts}
-            columns={columns}
-            slots={{
-              toolbar: GridToolbar,
-              noRowsOverlay: () => (
-                <Stack
-                  sx={{
-                    height: "100%",
-                    alignItems: "center",
-                    justifyContent: "center",
-                  }}
-                >
-                  There is no posts
-                </Stack>
-              ),
-            }}
-            slotProps={{
-              toolbar: {
-                csvOptions: { disableToolbarButton: true },
-                printOptions: { disableToolbarButton: true },
-                showQuickFilter: true,
-                quickFilterProps: { debounceMs: 500 },
-              },
-            }}
-            initialState={{
-              pagination: { paginationModel: { pageSize: 10, page: 0 } },
-            }}
-          />
-        </Box>
-      </Paper>
+          <Box sx={{ height: 250, maxHeight: 600 }}>
+            <DataGrid
+              checkboxSelection
+              disableRowSelectionOnClick
+              disableColumnFilter
+              disableColumnSelector
+              disableDensitySelector
+              pageSizeOptions={[10, 25, 50]}
+              rows={posts}
+              columns={columns}
+              slots={{
+                toolbar: GridToolbar,
+                noRowsOverlay: () => (
+                  <Stack
+                    sx={{
+                      height: "100%",
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    There is no posts
+                  </Stack>
+                ),
+              }}
+              slotProps={{
+                toolbar: {
+                  csvOptions: { disableToolbarButton: true },
+                  printOptions: { disableToolbarButton: true },
+                  showQuickFilter: true,
+                  quickFilterProps: { debounceMs: 500 },
+                },
+              }}
+              initialState={{
+                pagination: { paginationModel: { pageSize: 10, page: 0 } },
+              }}
+              sx={{
+                "&.MuiDataGrid-root .MuiDataGrid-columnHeader:focus-within": {
+                  outline: "none !important",
+                },
+
+                "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
+                  outline: "none !important",
+                },
+              }}
+            />
+          </Box>
+        </Paper>
+
+        <Dialog
+          open={open}
+          onClose={handleClose}
+          fullWidth
+          maxWidth="sm"
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">Delete</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              Are you sure?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleClose} color="primary">
+              Never Mind
+            </Button>
+            <Button onClick={handleDelete} color="primary" autoFocus>
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </>
     </AuthRoute>
   );
 };

@@ -1,6 +1,6 @@
 "use client";
 
-import { FC } from "react";
+import { FC, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import { Controller, useForm } from "react-hook-form";
@@ -12,7 +12,12 @@ import Button from "@mui/material/Button";
 import Paper from "@mui/material/Paper";
 import TextField from "@mui/material/TextField";
 
+import CustomizedSnackbars, {
+  ICustomizedSnackbars,
+} from "@lovesmell/components/CustomizedSnackbar";
+
 import signIn from "@lovesmell/utils/auth/signIn";
+import signOut from "@lovesmell/utils/auth/signOut";
 
 interface ISignIn {
   email: string;
@@ -27,10 +32,14 @@ const defaultValues: ISignIn = {
 const Login: FC = () => {
   const router = useRouter();
 
+  const [snackbar, setSnackbar] = useState<ICustomizedSnackbars>({
+    open: false,
+  });
+
   const schema = yup.object().shape({
     email: yup
       .string()
-      .email("Provide a valid email address")
+      .email("Please provide a valid email address")
       .required("Email is required"),
     password: yup.string().required("Password is required"),
   });
@@ -46,17 +55,35 @@ const Login: FC = () => {
   });
 
   const handleSignin = async (data: ISignIn) => {
+    const snackbar: ICustomizedSnackbars = {
+      open: true,
+      message: "Incorrect email address or password, please try again",
+      severity: "error",
+    };
+    const { email, password } = data;
+
+    if (email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+      setSnackbar(snackbar);
+      return;
+    }
+
     try {
-      const { email, password } = data;
-      const { result, error } = await signIn(email, password);
+      const { error, result } = await signIn(email, password);
 
       if (error) {
-        console.log(error);
+        setSnackbar(snackbar);
+        return;
+      }
+
+      if (result?.user?.email !== process.env.NEXT_PUBLIC_ADMIN_EMAIL) {
+        setSnackbar(snackbar);
+        signOut();
+        return;
       }
 
       router.push("/");
     } catch (e) {
-      console.log(e);
+      setSnackbar({ ...snackbar, message: e.message });
     }
   };
 
@@ -117,6 +144,11 @@ const Login: FC = () => {
           Sign in
         </Button>
       </Box>
+
+      <CustomizedSnackbars
+        {...snackbar}
+        handleClose={() => setSnackbar({ open: false })}
+      />
     </Paper>
   );
 };

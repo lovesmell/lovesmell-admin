@@ -2,7 +2,7 @@ import { doc, getDoc } from "firebase/firestore";
 
 import { db } from "@lovesmell/config/firebase";
 
-export const findOne = async (collectionName: string, id: string) => {
+export default async function getPost(collectionName: string, id: string) {
   let result = null;
   let error = null;
 
@@ -14,4 +14,4 @@ export const findOne = async (collectionName: string, id: string) => {
   }
 
   return { result, error };
-};
+}
