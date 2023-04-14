@@ -14,16 +14,12 @@ const AuthRoute: FC<IProps> = ({ children }) => {
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
-    if (!currentUser) {
+    if (!currentUser && pathname !== "/login") {
       router.push("/login");
-    } else if (pathname === "/login") {
+    } else if (currentUser && pathname === "/login") {
       router.push("/");
     }
   }, [currentUser, pathname, router]);
-
-  if (!currentUser) {
-    return null;
-  }
 
   return <>{children}</>;
 };
