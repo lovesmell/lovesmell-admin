@@ -1,5 +1,5 @@
 import React, { FC, useContext, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 import { AuthContext } from "@lovesmell/context/AuthContext";
 
@@ -9,14 +9,17 @@ interface IProps {
 
 const AuthRoute: FC<IProps> = ({ children }) => {
   const router = useRouter();
+  const pathname = usePathname();
 
   const { currentUser } = useContext(AuthContext);
 
   useEffect(() => {
     if (!currentUser) {
       router.push("/login");
+    } else if (pathname === "/login") {
+      router.push("/");
     }
-  }, [currentUser, router]);
+  }, [currentUser, pathname, router]);
 
   if (!currentUser) {
     return null;

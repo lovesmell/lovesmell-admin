@@ -16,6 +16,8 @@ import CustomizedSnackbars, {
   ICustomizedSnackbars,
 } from "@lovesmell/components/CustomizedSnackbar";
 
+import AuthRoute from "@lovesmell/HOC/authRoute";
+
 import signIn from "@lovesmell/utils/auth/signIn";
 import signOut from "@lovesmell/utils/auth/signOut";
 
@@ -88,68 +90,70 @@ const Login: FC = () => {
   };
 
   return (
-    <Paper
-      elevation={10}
-      sx={{ padding: 5, margin: "auto", maxWidth: "500px" }}
-    >
-      <Box>
-        <Controller
-          name="email"
-          control={control}
-          render={({ field }) => {
-            return (
-              <TextField
-                {...field}
-                label="Username"
-                placeholder="Enter username"
-                variant="outlined"
-                fullWidth
-                error={Boolean(errors.email)}
-                helperText={errors.email && errors.email?.message}
-              />
-            );
-          }}
+    <AuthRoute>
+      <Paper
+        elevation={10}
+        sx={{ padding: 5, margin: "auto", maxWidth: "500px" }}
+      >
+        <Box>
+          <Controller
+            name="email"
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextField
+                  {...field}
+                  label="Username"
+                  placeholder="Enter username"
+                  variant="outlined"
+                  fullWidth
+                  error={Boolean(errors.email)}
+                  helperText={errors.email && errors.email?.message}
+                />
+              );
+            }}
+          />
+        </Box>
+
+        <Box mt={4}>
+          <Controller
+            name="password"
+            control={control}
+            render={({ field }) => {
+              return (
+                <TextField
+                  {...field}
+                  label="Password"
+                  placeholder="Enter password"
+                  type="password"
+                  variant="outlined"
+                  fullWidth
+                  error={Boolean(errors.password)}
+                  helperText={errors.password && errors.password?.message}
+                />
+              );
+            }}
+          />
+        </Box>
+
+        <Box mt={4}>
+          <Button
+            color="primary"
+            variant="contained"
+            fullWidth
+            disabled={!isValid}
+            onClick={handleSubmit(handleSignin)}
+          >
+            Sign in
+          </Button>
+        </Box>
+
+        <CustomizedSnackbars
+          {...snackbar}
+          handleClose={() => setSnackbar({ open: false })}
         />
-      </Box>
-
-      <Box mt={4}>
-        <Controller
-          name="password"
-          control={control}
-          render={({ field }) => {
-            return (
-              <TextField
-                {...field}
-                label="Password"
-                placeholder="Enter password"
-                type="password"
-                variant="outlined"
-                fullWidth
-                error={Boolean(errors.password)}
-                helperText={errors.password && errors.password?.message}
-              />
-            );
-          }}
-        />
-      </Box>
-
-      <Box mt={4}>
-        <Button
-          color="primary"
-          variant="contained"
-          fullWidth
-          disabled={!isValid}
-          onClick={handleSubmit(handleSignin)}
-        >
-          Sign in
-        </Button>
-      </Box>
-
-      <CustomizedSnackbars
-        {...snackbar}
-        handleClose={() => setSnackbar({ open: false })}
-      />
-    </Paper>
+      </Paper>
+    </AuthRoute>
   );
 };
 
