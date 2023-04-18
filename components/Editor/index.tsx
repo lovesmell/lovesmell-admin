@@ -64,20 +64,15 @@ const Editor: FC<IProps> = ({ field }) => {
     },
     toolbar: {
       container: [
-        [
-          { header: "1" },
-          { header: "2" },
-          { header: [3, 4, 5, 6] },
-          { font: [] },
-        ],
-        [{ size: [] }],
-        ["bold", "italic", "underline", "strike", "blockquote"],
-        [
-          { list: "ordered" },
-          { list: "bullet" },
-          { indent: "-1" },
-          { indent: "+1" },
-        ],
+        [{ size: ["small", false, "large", "huge"] }],
+        [{ header: [1, 2, 3, 4, 5, 6, false] }],
+        ["bold", "italic", "underline", "strike"],
+        ["blockquote", "code-block"],
+        [{ script: "sub" }, { script: "super" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+        [{ direction: "rtl" }],
+        [{ color: [] }, { background: [] }],
+        [{ font: [] }],
         [{ align: [] }],
         ["link", "image", "video"],
         ["clean"],
@@ -116,6 +111,7 @@ const Editor: FC<IProps> = ({ field }) => {
       modules={modules}
       formats={formats}
       theme="snow"
+      placeholder="Type something here..."
     />
   );
 };

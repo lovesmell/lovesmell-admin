@@ -4,6 +4,8 @@ import MainNav from "@lovesmell/components/MainNav";
 
 import { AuthContextProvider } from "@lovesmell/context/AuthContext";
 
+import "@lovesmell/styles/globals.css";
+
 interface IProps {
   children: JSX.Element;
 }

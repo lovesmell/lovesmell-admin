@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 import {
   DataGrid,
   GridActionsCellItem,
@@ -38,6 +39,7 @@ const DashBoard: FC = () => {
   const [posts, setPosts] = useState<GridRowsProp>([]);
   const [open, setOpen] = useState(false);
   const [deleteId, setDeleteId] = useState<GridRowId>("");
+  const [loading, setLoading] = useState<boolean>(true);
 
   const handleEditClick = (id: GridRowId) => () => {
     router.push(`/post?id=${id}`);
@@ -95,10 +97,18 @@ const DashBoard: FC = () => {
       field: "actions",
       type: "actions",
       headerName: "Actions",
-      width: 100,
+      width: 150,
       cellClassName: "actions",
       getActions: ({ id }) => {
         return [
+          <GridActionsCellItem
+            key="preview"
+            icon={<VisibilityIcon />}
+            label="Preview"
+            className="textPrimary"
+            onClick={handleEditClick(id)}
+            color="inherit"
+          />,
           <GridActionsCellItem
             key="edit"
             icon={<EditIcon />}
@@ -121,10 +131,13 @@ const DashBoard: FC = () => {
 
   const fetchData = async () => {
     try {
+      setLoading(true);
       const { error, result } = await getPosts("posts");
       setPosts(result);
     } catch (e) {
       console.log(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -138,13 +151,15 @@ const DashBoard: FC = () => {
         <Paper elevation={10} sx={{ padding: 3, margin: "auto" }}>
           <Typography variant="h4">Dashboard</Typography>
 
-          <Box sx={{ height: 250, maxHeight: 600 }}>
+          <Box sx={{ height: "auto", overflow: "auto" }}>
             <DataGrid
               checkboxSelection
               disableRowSelectionOnClick
               disableColumnFilter
               disableColumnSelector
               disableDensitySelector
+              autoHeight
+              loading={loading}
               pageSizeOptions={[10, 25, 50]}
               rows={posts}
               columns={columns}
